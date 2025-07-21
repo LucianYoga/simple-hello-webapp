@@ -10,3 +10,5 @@ This project demonstrates how to:
 - `terraform/` - Terraform code for Azure resources
 - `web/` - Static Hello World webpage
 - `.github/workflows/` - GitHub Actions workflow for deployment 
+
+testing the workflow.
