@@ -33,9 +33,14 @@ jobs:
           name: web-content
           path: web/
 
+      - name: 'Archive static site'
+        run: |
+          cd web
+          zip -r ../webapp.zip .
+
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'simple-hello-webapp' # Must match the name in Terraform
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: web/index.html 
+          package: webapp.zip 
