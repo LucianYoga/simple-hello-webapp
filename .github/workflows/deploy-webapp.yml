@@ -15,11 +15,25 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: 'Upload artifact for deployment job'
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '7.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore web/web.csproj
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore web/web.csproj
+
+      - name: Publish
+        run: dotnet publish --configuration Release --output ./publish web/web.csproj
+
+      - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
-          name: web-content
-          path: web/
+          name: webapp-publish
+          path: ./publish
 
   deploy:
     runs-on: ubuntu-latest
@@ -30,17 +44,12 @@ jobs:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
-          name: web-content
-          path: web/
+          name: webapp-publish
+          path: ./publish
 
-      - name: 'Archive static site'
-        run: |
-          cd web
-          zip -r ../webapp.zip .
-
-      - name: 'Deploy to Azure Web App'
+      - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'simple-hello-webapp' # Must match the name in Terraform
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: webapp.zip 
+          package: ./publish 
